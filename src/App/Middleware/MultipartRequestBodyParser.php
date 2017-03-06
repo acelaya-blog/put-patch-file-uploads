@@ -33,57 +33,66 @@ class MultipartRequestBodyParser implements RequestMethodInterface
         $bodyParams = [];
         $files = [];
         foreach ($parts as $part) {
-            // Separate part headers from part body
-            $part = ltrim($part, "\r\n");
-            list($partRawHeaders, $partBody) = explode("\r\n\r\n", $part, 2);
-
-            // Cast headers into associative array
-            $partRawHeaders = explode("\r\n", $partRawHeaders);
-            $partHeaders = array_reduce($partRawHeaders, function (array $headers, $header) {
-                list($name, $value) = explode(':', $header);
-                $headers[strtolower($name)] = ltrim($value, ' ');
-                return $headers;
-            }, []);
-
-            // Ignore any part without content disposition
-            if (! isset($partHeaders['content-disposition'])) {
-                continue;
-            }
-
-            // Parse content disposition, in order to find out the nature of each field
-            $contentDisposition = $partHeaders['content-disposition'];
-            preg_match(
-                '/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/',
-                $contentDisposition,
-                $matches
-            );
-            $name = $matches[2];
-            $filename = isset($matches[4]) ? $matches[4] : null;
-
-            // Check if current part is a properly uploaded file, a not uploaded file or another field
-            if ($filename !== null) {
-                // If file was correctly uploaded, write into temp dir and create an UploadedFile instance
-                $tempFile = tempnam(ini_get('upload_tmp_dir'), 'php');
-                file_put_contents($tempFile, $partBody);
-                $this->addFile($files, $name, new UploadedFile(
-                    $tempFile,
-                    strlen($partBody),
-                    UPLOAD_ERR_OK,
-                    $filename,
-                    isset($partHeaders['content-type']) ? $partHeaders['content-type'] : null
-                ));
-            } elseif (strpos($contentDisposition, 'filename') !== false) {
-                $this->addFile($files, $name, new UploadedFile(
-                    null,
-                    0,
-                    UPLOAD_ERR_NO_FILE
-                ));
-            } else {
-                $bodyParams[$name] = substr($partBody, 0, -2);
-            }
+            $this->processPart($files, $bodyParams, $part);
         }
 
-        return $next($request->withUploadedFiles($files)->withParsedBody($bodyParams), $response);
+        return $next(
+            $request->withUploadedFiles($files)
+                    ->withParsedBody($bodyParams),
+            $response
+        );
+    }
+
+    protected function processPart(array &$files, array &$bodyParams, $part)
+    {
+        // Separate part headers from part body
+        $part = ltrim($part, "\r\n");
+        list($partRawHeaders, $partBody) = explode("\r\n\r\n", $part, 2);
+
+        // Cast headers into associative array
+        $partRawHeaders = explode("\r\n", $partRawHeaders);
+        $partHeaders = array_reduce($partRawHeaders, function (array $headers, $header) {
+            list($name, $value) = explode(':', $header);
+            $headers[strtolower($name)] = ltrim($value, ' ');
+            return $headers;
+        }, []);
+
+        // Ignore any part without content disposition
+        if (! isset($partHeaders['content-disposition'])) {
+            return;
+        }
+
+        // Parse content disposition, in order to find out the nature of each field
+        $contentDisposition = $partHeaders['content-disposition'];
+        preg_match(
+            '/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/',
+            $contentDisposition,
+            $matches
+        );
+        $name = $matches[2];
+        $filename = isset($matches[4]) ? $matches[4] : null;
+
+        // Check if current part is a properly uploaded file, a not uploaded file or another field
+        if ($filename !== null) {
+            // If file was correctly uploaded, write into temp dir and create an UploadedFile instance
+            $tempFile = tempnam(ini_get('upload_tmp_dir'), 'php');
+            file_put_contents($tempFile, $partBody);
+            $this->addFile($files, $name, new UploadedFile(
+                $tempFile,
+                strlen($partBody),
+                UPLOAD_ERR_OK,
+                $filename,
+                isset($partHeaders['content-type']) ? $partHeaders['content-type'] : null
+            ));
+        } elseif (strpos($contentDisposition, 'filename') !== false) {
+            $this->addFile($files, $name, new UploadedFile(
+                null,
+                0,
+                UPLOAD_ERR_NO_FILE
+            ));
+        } else {
+            $bodyParams[$name] = substr($partBody, 0, -2);
+        }
     }
 
     protected function addFile(array &$files, $name, UploadedFile $newFile)
