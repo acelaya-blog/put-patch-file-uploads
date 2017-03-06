@@ -2,7 +2,7 @@
 
 Example application demonstrating how to manage uploaded files in PUT and PATCH requests on psr-7/middleware PHP apps.
 
-This repository is an example project used in this article http://blog.alejandrocelaya.com/
+This repository is an example project used in this article https://blog.alejandrocelaya.com/2017/03/06/managing-put-requests-with-file-uploads-in-psr-7-middleware-php-applications/
 
 Clone this repository and then run `composer install && composer serve`.
 
