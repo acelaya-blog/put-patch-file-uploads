@@ -1,0 +1,35 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Uploads{% endblock %}
+
+{% block content %}
+    <form class="upload-form" action="{{ path('upload') }}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="file" name="file1[]" class="form-control" multiple>
+        </div>
+        <div class="form-group">
+            <input type="file" name="file2" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="file" name="file3" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="foo" placeholder="foo" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="bar" placeholder="bar" class="form-control">
+        </div>
+        <div class="form-group">
+            <ul>
+                <li><label class="radio"><input type="radio" name="verb" value="post" checked> POST</label></li>
+                <li><label class="radio"><input type="radio" name="verb" value="put"> PUT</label></li>
+                <li><label class="radio"><input type="radio" name="verb" value="patch"> PATCH</label></li>
+            </ul>
+        </div>
+        <div class="text-right">
+            <button class="btn btn-primary">Send</button>
+        </div>
+        <br>
+        <div class="resp"></div>
+    </form>
+{% endblock %}
