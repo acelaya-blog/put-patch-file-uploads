@@ -5,21 +5,27 @@
 {% block content %}
     <form class="upload-form" action="{{ path('upload') }}" method="post" enctype="multipart/form-data">
         <div class="form-group">
+            <label>File1: select multiple files</label>
             <input type="file" name="file1[]" class="form-control" multiple>
         </div>
         <div class="form-group">
+            <label>File2: select one file</label>
             <input type="file" name="file2" class="form-control">
         </div>
         <div class="form-group">
+            <label>File3: select one file</label>
             <input type="file" name="file3" class="form-control">
         </div>
         <div class="form-group">
+            <label>Foo field</label>
             <input type="text" name="foo" placeholder="foo" class="form-control">
         </div>
         <div class="form-group">
+            <label>Bar field</label>
             <input type="text" name="bar" placeholder="bar" class="form-control">
         </div>
         <div class="form-group">
+            <label>Select an HTTP method</label>
             <ul>
                 <li><label class="radio"><input type="radio" name="verb" value="post" checked> POST</label></li>
                 <li><label class="radio"><input type="radio" name="verb" value="put"> PUT</label></li>

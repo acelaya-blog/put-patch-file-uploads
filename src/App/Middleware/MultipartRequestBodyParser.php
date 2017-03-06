@@ -11,8 +11,14 @@ class MultipartRequestBodyParser implements RequestMethodInterface
 {
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-        // Apply only to PUT and PATCH requests when content type is multipart
-        list($contentType, $boundary) = explode('; boundary=', $request->getHeaderLine('content-type'));
+        // Find content type
+        $contentTypeParts = explode('; boundary=', $request->getHeaderLine('content-type'));
+        if (count($contentTypeParts) === 1) {
+            $contentTypeParts[] = '';
+        }
+
+        // Apply this middleware only to PUT and PATCH requests when content type is multipart/form-data
+        list($contentType, $boundary) = $contentTypeParts;
         if ($contentType !== 'multipart/form-data'
             || ! in_array($request->getMethod(), [self::METHOD_PUT, self::METHOD_PATCH], true)
         ) {
