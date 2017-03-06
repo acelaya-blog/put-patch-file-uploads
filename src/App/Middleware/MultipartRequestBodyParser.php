@@ -7,7 +7,7 @@ use Fig\Http\Message\RequestMethodInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RequestParser implements RequestMethodInterface
+class MultipartRequestBodyParser implements RequestMethodInterface
 {
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {

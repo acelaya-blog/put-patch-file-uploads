@@ -1,5 +1,5 @@
 <?php
-use App\Middleware\RequestParser;
+use App\Middleware\MultipartRequestBodyParser;
 use Zend\Expressive\Container\ApplicationFactory;
 use Zend\Expressive\Helper;
 
@@ -24,7 +24,7 @@ return [
             'middleware' => [
                 ApplicationFactory::ROUTING_MIDDLEWARE,
                 Helper\UrlHelperMiddleware::class,
-                RequestParser::class,
+                MultipartRequestBodyParser::class,
                 ApplicationFactory::DISPATCH_MIDDLEWARE,
             ],
             'priority' => 1,
